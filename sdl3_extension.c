@@ -2,44 +2,54 @@
 // All rights reserved.
 
 #include "extension.h"
+#include "platform.h"
 #include "platform_api.h"
 #include "platform_timing.h"
 #include "sdl3_extension_api.h"
-#include "sdl3_platform_overrides.h"
+#include <SDL3/SDL.h>
 #include <stdio.h>
 
-static PlatformAPI* g_platform = NULL;
+// Window Management
 
 EXTENSION_API void SDL3_LogHello(void) {
-  if (g_platform) {
-    Platform_Log("Hello!\n");
-  }
+  Platform_Log("Hello!\n");
 }
 
 EXTENSION_API void SDL3_LogWorld(void) {
-  if (g_platform) {
-    Platform_Log("XOXO\n--SDL3_Extension\n");
-  }
+  Platform_Log("XOXO\n--SDL3_Extension\n");
 }
 
-// TODO: Implement PlatformAPI's missing calls and plug them in.
-
+// After generating, make sure to set up the specific API here.
 static SDL3API g_sdl3_api = {
   .LogHello = SDL3_LogHello,
-  .LogWorld = SDL3_LogWorld
+  .LogWorld = SDL3_LogWorld,
+  .CreateWindow = SDL3_CreateWindow,
+  .DestroyWindow = SDL3_DestroyWindow
 };
+
+EXTENSION_API PlatformWindow* SDL3_CreateWindow(const char *title, int w, int h) {
+  return NULL;
+}
+
+EXTENSION_API void SDL3_DestroyWindow(PlatformWindow* window) {
+
+}
 
 // --- The Extension Interface ---
 bool SDL3_Init(EngineAPI* engine, PlatformAPI* platform) {
-  g_platform = platform;
-  Platform_Log("SDL3 Extension Initialized.\n");
+  Platform_Log("SDL3 Extension Initializing.\n");
+
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
+    Platform_Log("Unable to initialize SDL: %s", SDL_GetError());
+    return false;
+  }
 
   PlatformAPI* platform_api = Platform_GetAPI();
   platform_api->Log = Platform_Log;
+  platform_api->LogWarning = Platform_LogWarning;
+  platform_api->LogError = Platform_LogError;
   platform_api->GetTimeNS = Platform_GetTimeNS;
   /*
-  .CreateWindow = Platform_CreateWindow,
-  .DestroyWindow = Platform_DestroyWindow,
   .GetWindowSize = Platform_GetWindowSize,
   .SetWindowFullscreen = Platform_SetWindowFullscreen,
   .SetWindowBordered = Platform_SetWindowBordered,
@@ -56,20 +66,12 @@ bool SDL3_Init(EngineAPI* engine, PlatformAPI* platform) {
   .SetRenderLogicalPresentation = Platform_SetRenderLogicalPresentation,
   */
 
-  // Call SDL_Init()
-  // Assign our logging into PlatformAPI's functions here.
-  // Maybe consider the same for timing...no, do it at the core.
-
   return true;
-}
-
-void SDL3_Update(float dt) {
 }
 
 void SDL3_Shutdown(void) {
   Platform_Log("SDL3 Extension Shutdown.\n");
-
-  // Call SDL_Shutdown
+  SDL_Quit();
 }
 
 void* SDL3_GetSpecificAPI(void) {
@@ -80,7 +82,7 @@ void* SDL3_GetSpecificAPI(void) {
 ExtensionInterface g_extension_sdl3 = {
   .name = "SDL3",
   .Init = SDL3_Init,
-  .Update = SDL3_Update,
+  .Update = NULL,
   .Shutdown = SDL3_Shutdown,
   .GetSpecificAPI = SDL3_GetSpecificAPI
 };
