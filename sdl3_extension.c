@@ -37,7 +37,9 @@ static SDL3API g_sdl3_api = {
   .RendererClear = SDL3_RendererClear,
   .RendererPresent = SDL3_RendererPresent,
   .RendererGetVSync = SDL3_RendererGetVSync,
-  .RendererSetVSync = SDL3_RendererSetVSync
+  .RendererSetVSync = SDL3_RendererSetVSync,
+  .GetBasePath = SDL3_GetBasePath,
+  .GetPrefPath = SDL3_GetPrefPath
 };
 
 #pragma region SDL3_Window
