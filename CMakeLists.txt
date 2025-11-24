@@ -2,6 +2,7 @@ project(sdl3_extension LANGUAGES C)
 
 # Include the real SDL
 set(BUILD_SHARED_LIBS OFF)
+set(SDL_X11_XTEST OFF CACHE INTERNAL "")
 set(SDL_SHARED OFF CACHE INTERNAL "")
 add_subdirectory(extern/sdl3)
 
