@@ -112,7 +112,7 @@ EXTENSION_API PlatformRenderer* SDL3_CreateRenderer(const PlatformWindow* window
 
   renderer->sdl_renderer = SDL_CreateRenderer(sdl_window, name);
   if (!renderer->sdl_renderer) {
-    free(renderer);
+    SDL_free(renderer);
     return NULL;
   }
 
